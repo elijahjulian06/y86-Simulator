@@ -1,0 +1,58 @@
+                            | # This program calls a min function which takes as input the
+                            | # address of a list and the number of elements in the list
+                            | # and returns the smallest value in the list
+                            | #
+0x000:                      |         .pos 0
+0x000: 30f47800000000000000 |         irmovq stack, %rsp   #initialize stack pointer
+0x00a: 30f70801000000000000 |         irmovq list, %rdi    #address of first element
+0x014: 30f60001000000000000 |         irmovq len, %rsi     #address of length of list
+0x01e: 50660000000000000000 |         mrmovq (%rsi), %rsi  #load length of list
+0x028: 30f80800000000000000 |         irmovq 8, %r8       #store 8 for incementing list pointer
+0x032: 30f30100000000000000 |         irmovq 1, %rbx      #store 1 for decrement
+0x03c: 30f20000000000000000 |         irmovq 0, %rdx      #temp value
+0x046: 30fa0000000000000000 |         irmovq 0, %r10      #save min
+0x050: 30fbc800000000000000 |         irmovq 200, %r11
+0x05a: 30f00801000000000000 |         irmovq list, %rax   #store addr of list aka first min
+0x064: 50000000000000000000 |         mrmovq (%rax), %rax #store value aka first min
+0x06e: 807800000000000000   |         call stack
+                            | #  When halt statement is reached, %rax should be equal to -7 (0xfffffffffffffff9)
+0x077: 00                   |         halt
+                            | #
+                            | # min function
+                            | # sets %rax to the value of the smallest element in a list
+                            | # %rdi contains the address of the first element
+                            | # %rsi contains the length of the list
+                            | # TODO: write the min function
+0x078:                      | stack:  
+0x078: 50970000000000000000 |         mrmovq (%rdi), %r9   #store the value at list into r9
+0x082: a09f                 |         pushq %r9           #push value at list onto stack
+0x084: 6087                 |         addq %r8, %rdi      #increment addr
+0x086: 6136                 |         subq %rbx, %rsi     #sub length of list
+0x088: 747800000000000000   |         jne stack:          #once length = 0 move on 
+0x091:                      | min:
+0x091: b02f                 |         popq %rdx           #pop top of stack
+0x093: 200a                 |         rrmovq %rax, %r10   #store rax into r10 temp
+0x095: 612a                 |         subq %rdx, %r10     #sub rax = 9 -- 10
+0x097: 2620                 |         cmovg %rdx, %rax    #value was smaller so new min = rdx
+0x099: 614b                 |         subq  %rsp, %r11     #subtract 0x200 - stack value
+0x09b: 749100000000000000   |         jne min
+0x0a4:                      | end:
+0x0a4: 90                   |         ret    
+                            | #
+                            | #        list data
+0x100:                      |         .pos 0x100
+0x100: 0a00000000000000     | len:    .quad 10 
+0x108: 0e00000000000000     | list:   .quad 14
+0x110: 0300000000000000     |         .quad 3
+0x118: 0200000000000000     |         .quad 2
+0x120: 1b00000000000000     |         .quad 27
+0x128: feffffffffffffff     |         .quad -2
+0x130: 0c00000000000000     |         .quad 12
+0x138: 1700000000000000     |         .quad 23
+0x140: 0500000000000000     |         .quad 5
+0x148: f9ffffffffffffff     |         .quad -7
+0x150: 0900000000000000     |         .quad 9
+                            | 
+                            | #       stack    
+0x200:                      |         .pos 0x200
+0x200: 0000000000000000     | stack:  .quad 0

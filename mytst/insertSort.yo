@@ -1,0 +1,97 @@
+                            | # This program performs an insertion sort on a list of numbers.
+                            | # Note the sort is in-place. At the end there is a single, sorted list.
+                            | # If the program is correct, then the final memory dump should contain the 
+                            | # following:
+                            | # 100: 000000000000000a fffffffffffffff9 fffffffffffffffe 0000000000000002 
+                            | # 120: 0000000000000003 0000000000000005 0000000000000009 000000000000000c 
+                            | # 140: 000000000000000e 0000000000000017 000000000000001b 0000000000000000 
+                            | #
+0x000:                      |         .pos 0
+0x000: 30f40002000000000000 |         irmovq stack, %rsp   #initialize stack pointer
+0x00a: 30f70801000000000000 |         irmovq list, %rdi    #address of first element
+0x014: 30f00001000000000000 |         irmovq len, %rax     #address of length of list
+0x01e: 50000000000000000000 |         mrmovq (%rax), %rax  #load length of list
+0x028: 30f60800000000000000 |         irmovq 8, %rsi       #offset of current element to insert
+0x032: 30f10100000000000000 |         irmovq 1, %rcx       #length of sorted list 
+0x03c: 30fa0801000000000000 |         irmovq list, %r10
+0x046: 30f90000000000000000 |         irmovq 0, %r9
+0x050: 805a00000000000000   |         call while
+                            | #
+                            | # loop inserting each element into a sorted list
+                            | # first iteration: insert 3 into list containing 14 giving the list 3 14
+                            | # second iteration: insert 2 into the list containing 3 14 giving the list 2 3 14
+                            | # third iteration: insert 27 into the list contain 2 3 14 giving 2 3 14 27
+                            | # stop when the length of the sorted list is equal to the length of list
+                            | # 
+                            | # TODO: Provide missing code (see description below of insert function)
+                            | #
+0x059: 00                   | done:   halt
+                            | 
+0x05a:                      | while: 
+0x05a: 2008                 |         rrmovq %rax, %r8   #set r8 to length of list
+0x05c: 6198                 |         subq %r9, %r8      # subtract 10 - 0 = 10 so it jumps to insert
+0x05e: 746800000000000000   |         jne insert
+0x067: 90                   |         ret
+                            | 
+                            | 
+                            | #
+                            | # insert function
+                            | # Takes the address of the first element in the list
+                            | # and the offset from that address of the new element to insert
+                            | # and swaps the values of consecutive elements until the new element
+                            | # is in the correct spot.
+                            | # For example, suppose current list is -2 2 3 14 27
+                            | # Next element to insert is 9 (which in memory is right after the 27)
+                            | # The insert function will loop:
+                            | # after first iteration the list will be: -2 2 4 14 9 27
+                            | # after second iteration the list will be: -2 2 4 9 14 27
+                            | # Now, the function is exited because the 9 is in the right spot (> 4)
+                            | #
+                            | # TODO: write the insert function
+0x068:                      | insert:
+0x068: 50d70000000000000000 |         mrmovq (%rdi), %r13  #grab first element
+0x072: 50e70800000000000000 |         mrmovq 8(%rdi), %r14 #second element
+                            | 
+0x07c: 2074                 |         rrmovq %rdi, %rsp
+0x07e: 6064                 |         addq %rsi, %rsp      #holds last element of the list
+                            |         
+0x080: 20d3                 |         rrmovq %r13, %rbx    #stores value of first
+0x082: 61e3                 |         subq %r14, %rbx      #first - second
+                            | 
+0x084: 769a00000000000000   |         jg swap              #if first > second go to swap
+                            | 
+0x08d: 2047                 |         rrmovq %rsp, %rdi
+0x08f: 6067                 |         addq %rsi, %rdi      #if they are in the correct position you are done jump back to while:
+0x091: 705a00000000000000   |         jmp while            #else increment the adress by 8
+0x09a:                      | swap: 
+0x09a: 40e70000000000000000 |         rmmovq %r14, (%rdi)  #second element put at position for first
+0x0a4: 40d70800000000000000 |         rmmovq %r13, 8(%rdi) #first element put at position of second
+0x0ae: 30f50801000000000000 |         irmovq list, %rbp
+0x0b8: 6175                 |         subq %rdi, %rbp     
+0x0ba: 74d200000000000000   |         jne checkprev       #if rdi != orginal we need to check if we need to swap again
+0x0c3: 6019                 |         addq %rcx, %r9
+0x0c5: 6067                 |         addq %rsi, %rdi
+0x0c7: 2047                 |         rrmovq %rsp, %rdi
+0x0c9: 705a00000000000000   |         jmp while           #if rdi = orginal adress go to while loop
+                            | 
+0x0d2:                      | checkprev:
+0x0d2: 6167                 |         subq %rsi, %rdi
+0x0d4: 706800000000000000   |         jmp insert
+                            | 
+                            | #        list data
+0x100:                      |         .pos 0x100
+0x100: 0a00000000000000     | len:    .quad 10
+0x108: 0e00000000000000     | list:   .quad 14
+0x110: 0300000000000000     |         .quad 3
+0x118: 0200000000000000     |         .quad 2
+0x120: 1b00000000000000     |         .quad 27
+0x128: feffffffffffffff     |         .quad -2
+0x130: 0c00000000000000     |         .quad 12
+0x138: 1700000000000000     |         .quad 23
+0x140: 0500000000000000     |         .quad 5
+0x148: f9ffffffffffffff     |         .quad -7
+0x150: 0900000000000000     |         .quad 9
+                            | 
+                            | #       stack    
+0x200:                      |         .pos 0x200
+0x200: 0000000000000000     | stack:  .quad 0
